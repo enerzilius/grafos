@@ -8,9 +8,9 @@
 
 class AdjListGraph {
     bool isUndirectional = false;
-    std::map<uint16_t, std::vector<int>> list;
+    std::map<uint16_t, std::vector<uint16_t>> list;
 public:
-    AdjListGraph(bool undirectional = false);
+    AdjListGraph(bool undirectional);
     ~AdjListGraph();
     void addEdge(const uint16_t vertex, uint16_t adjacentVertex);
     void addVertex(const uint16_t vertex);
