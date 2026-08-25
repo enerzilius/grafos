@@ -8,5 +8,8 @@ int main() {
     graph.addEdge(0, 2);
     graph.print();
 
+    graph.readFromFile("data/1a.txt");
+    graph.print();
+
     exit(0);
 }
