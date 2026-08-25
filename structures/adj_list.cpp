@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 AdjListGraph::AdjListGraph(bool undirectional = false) {
     isUndirectional = undirectional;
@@ -19,7 +20,10 @@ void AdjListGraph::addEdge(const uint16_t vertex, uint16_t adjacentVertex) {
 }
 
 //void removeEdge(const uint16_t vertex, uint16_t adjacentVertex);
-void readFromFile(const std::string& path);
+void readFromFile(const std::string& path) {
+    std::ifstream file;
+    file.open(path, std::ios::binary);
+}
 
 void AdjListGraph::print() {
     std::map<uint16_t, std::vector<uint16_t>>::iterator iterator;
