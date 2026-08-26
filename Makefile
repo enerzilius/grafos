@@ -13,8 +13,11 @@ main: $(LIST)
 
 $(GRAPHS): $(LIST) $(MTX)
 
-$(LIST):
+$(LIST): $(BUILD)
 	$(CC) -c $(STRUCT)/$(LIST).cpp -o $(BUILD)/$(LIST).o
 
-$(MTX):
+$(MTX): $(BUILD)
 	$(CC) -c $(STRUCT)/$(MTX).cpp -o $(BUILD)/$(MTX).o
+
+$(BUILD):
+	mkdir -p $(BUILD)

@@ -59,7 +59,7 @@ void AdjListGraph::print() {
     for (iterator = list.begin(); iterator != list.end(); iterator++) {
         std::cout<<"\n"<<iterator->first<<":";
         for(const uint16_t& vertex : iterator->second) {
-            std::cout<<" "<<vertex;
+            std::cout<<" "<<vertex;  
         }
     }
     std::cout<<"\n";    
