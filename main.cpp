@@ -1,12 +1,14 @@
+#include "algorithms/search.h"
 #include "structures/adj_list.h"
-#include <iostream>
 #include <cstdlib>
 
 int main() {
-    AdjListGraph graph(true);
+  AdjListGraph graph(true);
 
-    graph.readFromFile("data/1a.txt");
-    graph.print();
+  graph.readFromFile("data/1a.txt");
+  graph.print();
 
-    exit(0);
+  depthFirstSearch(graph.list, 0);
+
+  exit(0);
 }

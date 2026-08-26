@@ -2,13 +2,15 @@ CC = g++
 LIST = adj_list
 MTX = adj_matrix
 
-GRAPHS = graphs
 BUILD = build
 STRUCT = structures
+GRAPHS = graphs
+ALG = algorithms
+SEARCH = search
 
 comp_file = $(CC) $(1).cpp $(BUILD)/$(2).o -o $(BUILD)/$(1).out
 
-main: $(LIST) 
+main: $(LIST) $(SEARCH)
 	$(call comp_file,main,$(LIST))
 
 $(GRAPHS): $(LIST) $(MTX)
@@ -18,6 +20,9 @@ $(LIST): $(BUILD)
 
 $(MTX): $(BUILD)
 	$(CC) -c $(STRUCT)/$(MTX).cpp -o $(BUILD)/$(MTX).o
+
+$(SEARCH): $(BUILD) 
+	$(CC) -c $(ALG)/$(SEARCH).cpp -o $(BUILD)/$(SEARCH).o
 
 $(BUILD):
 	mkdir -p $(BUILD)
