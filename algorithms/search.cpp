@@ -1,6 +1,5 @@
 #include "search.h"
 #include <cstdint>
-#include <cstdlib>
 #include <iostream>
 #include <map>
 #include <unordered_set>
@@ -15,14 +14,22 @@ void depthFirstSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
 }
 
 void depthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
-                 uint32_t &count, std::unordered_set<uint16_t> marked,
+                 uint32_t &count, std::unordered_set<uint16_t> &marked,
                  const uint16_t begin_at = 0) {
-  for (const uint16_t vertex : list.at(begin_at)) {
-    marked.insert(vertex);
-    std::cout << vertex << " -> ";
-    count++;
+  marked.insert(begin_at);
+  std::cout << begin_at << " -> ";
+  count++;
+
+  std::vector<uint16_t> currentVector = list.at(begin_at);
+  if (currentVector.empty())
+    return;
+
+  for (const uint16_t vertex : currentVector) {
     if (marked.find(vertex) != marked.end())
       continue;
+
+    marked.insert(vertex);
+    count++;
 
     depthSearch(list, count, marked, vertex);
   }

@@ -8,10 +8,10 @@ GRAPHS = graphs
 ALG = algorithms
 SEARCH = search
 
-comp_file = $(CC) $(1).cpp $(BUILD)/$(2).o -o $(BUILD)/$(1).out
+comp_file = $(CC) $(1).cpp $(addprefix $(BUILD)/,$(addsuffix .o,$(2))) -o $(BUILD)/$(1).out
 
 main: $(LIST) $(SEARCH)
-	$(call comp_file,main,$(LIST))
+	$(call comp_file,main,$(LIST) $(SEARCH))
 
 $(GRAPHS): $(LIST) $(MTX)
 
