@@ -4,7 +4,7 @@
 int main() {
   AdjListGraph graph(true);
 
-  graph.readFromFile("data/ex.txt");
+  graph.readFromFile("data/1a.txt");
   graph.print();
 
   depthFirstSearch(graph.list, 0);
