@@ -9,5 +9,7 @@ int main() {
 
   depthFirstSearch(graph.list, 0);
 
+  breadthFirstSearch(graph.list, 0);
+
   exit(0);
 }

@@ -4,51 +4,69 @@
 #include <unordered_set>
 #include <vector>
 #include <iostream>
+#include <queue>
 
 struct TableContents {
   bool marked;
   uint16_t edgeTo;
 };
 
-static std::map<uint16_t, TableContents> markedTable;
+static std::map<uint16_t, TableContents> marked;
 
 static void printTable() {
-  std::cout<<"v | marked | edgeTo \n";
-  for(auto const& [key, value] : markedTable) {
+  std::cout<<"\nv | marked | edgeTo \n";
+  for(auto const& [key, value] : marked) {
     std::cout<<key<<" | "<<(value.marked? "T" : "F")<<" | "<<value.edgeTo<<"\n";
   }
+  std::cout<<"\n";
 }
 
 void depthFirstSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
-                      uint16_t begin_at = 0) {
-  std::unordered_set<uint16_t> marked;
-  uint32_t count = 0;
-
-  markedTable.insert({begin_at, {true, begin_at}});
-  depthSearch(list, count, marked, begin_at);
+                      const uint16_t begin_at = 0) {
+  marked.insert({begin_at, {true, begin_at}});
+  depthSearch(list, begin_at);
   printTable();
 }
 
-void depthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
-                 uint32_t &count, std::unordered_set<uint16_t> &marked,
+static void depthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
                  const uint16_t begin_at = 0) {
-  marked.insert(begin_at);
-  count++;
   
   std::vector<uint16_t> currentVector = list.at(begin_at);
   if (currentVector.empty())
     return;
 
-    for (const uint16_t vertex : currentVector) {
+  for (const uint16_t vertex : currentVector) {
       if (marked.find(vertex) != marked.end())
       continue;
-    markedTable.insert({vertex, {true, begin_at}});
-      
-    marked.insert(vertex);
-    count++;
+    marked.insert({vertex, {true, begin_at}});
     
-    depthSearch(list, count, marked, vertex);
+    depthSearch(list, vertex);
   }
 }
 
+void breadthFirstSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                      const uint16_t begin_at = 0) {
+  std::queue<uint16_t> queue;
+  
+  queue.push(begin_at);
+  marked.insert({begin_at, {true, begin_at}});
+  breadthSearch(list, queue, begin_at);
+  printTable();
+}
 
+static void breadthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list, std::queue<uint16_t>& queue,
+                 const uint16_t begin_at = 0) {
+  
+  std::vector<uint16_t> currentVector = list.at(begin_at);
+  if (currentVector.empty())
+    return;
+
+  for (const uint16_t vertex : currentVector) {
+    if (marked.find(vertex) != marked.end())
+      continue;
+    
+    queue.push(vertex);
+    marked.insert({vertex, {true, begin_at}});
+  }
+  breadthSearch(list, queue, queue.front());
+}
