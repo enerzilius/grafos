@@ -12,16 +12,13 @@ struct TableContents {
 
 static std::map<uint16_t, TableContents> marked;
 
-void SearchAlgorithms::printTable() {
-  std::cout << "\nv | marked | edgeTo \n";
-  for (auto const &[key, value] : marked) {
-    std::cout << key << " | " << (value.marked ? "T" : "F") << " | "
-              << value.edgeTo << "\n";
-  }
-  std::cout << "\n";
-}
+static void depthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                        const uint16_t begin_at);
+static void breadthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                          std::queue<uint16_t> &queue, const uint16_t begin_at);
+static void printTable();
 
-void SearchAlgorithms::depthFirstSearch(
+void gsa::depthFirstSearch(
     const std::map<uint16_t, std::vector<uint16_t>> &list,
     const uint16_t begin_at = 0) {
   marked.clear();
@@ -30,9 +27,8 @@ void SearchAlgorithms::depthFirstSearch(
   printTable();
 }
 
-void SearchAlgorithms::depthSearch(
-    const std::map<uint16_t, std::vector<uint16_t>> &list,
-    const uint16_t begin_at = 0) {
+static void depthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                        const uint16_t begin_at = 0) {
 
   std::vector<uint16_t> currentVector = list.at(begin_at);
   if (currentVector.empty())
@@ -47,7 +43,7 @@ void SearchAlgorithms::depthSearch(
   }
 }
 
-void SearchAlgorithms::breadthFirstSearch(
+void gsa::breadthFirstSearch(
     const std::map<uint16_t, std::vector<uint16_t>> &list,
     const uint16_t begin_at = 0) {
   std::queue<uint16_t> queue;
@@ -58,9 +54,9 @@ void SearchAlgorithms::breadthFirstSearch(
   printTable();
 }
 
-void SearchAlgorithms::breadthSearch(
-    const std::map<uint16_t, std::vector<uint16_t>> &list,
-    std::queue<uint16_t> &queue, const uint16_t begin_at = 0) {
+static void breadthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                          std::queue<uint16_t> &queue,
+                          const uint16_t begin_at = 0) {
 
   std::vector<uint16_t> currentVector = list.at(begin_at);
 
@@ -80,4 +76,13 @@ void SearchAlgorithms::breadthSearch(
   if (queue.empty())
     return;
   breadthSearch(list, queue, queue.front());
+}
+
+static void printTable() {
+  std::cout << "\nv | marked | edgeTo \n";
+  for (auto const &[key, value] : marked) {
+    std::cout << key << " | " << (value.marked ? "T" : "F") << " | "
+              << value.edgeTo << "\n";
+  }
+  std::cout << "\n";
 }
