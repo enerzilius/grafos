@@ -13,5 +13,10 @@ int main() {
   graph.print();
 
   gsa::breadthFirstSearch(graph.list, 0);
+
+  graph.readFromFile("data/1c.txt");
+  graph.print();
+
+  gsa::searchConnectedComponents(graph.list);
   exit(0);
 }
