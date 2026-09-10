@@ -18,5 +18,13 @@ int main() {
   graph.print();
 
   gsa::searchConnectedComponents(graph.list);
+
+  graph.clearGraph();
+  graph.addEdge(0, 1);
+  graph.addEdge(1, 2);
+  graph.print();
+  graph.reverseGraph();
+  graph.print();
+
   exit(0);
 }

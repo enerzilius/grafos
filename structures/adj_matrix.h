@@ -6,7 +6,7 @@
 #include <cstdlib>
 
 class AdjListGraph {
-    bool isUndirectional = false;
+    bool isUndirected = false;
     std::vector<std::vector<int>> list;
 public:
     AdjListGraph(bool bidirectional = false);

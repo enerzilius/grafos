@@ -135,7 +135,7 @@ getUnmarked(const std::map<uint16_t, std::vector<uint16_t>> &list,
     if (marked.find(key) == marked.end())
       return key;
   }
-  return beginAt; // sentinel: nothing left unmarked
+  return beginAt;
 }
 
 static void printTable() {
