@@ -14,8 +14,10 @@ AdjListGraph::~AdjListGraph() { list = {}; }
 
 void AdjListGraph::addEdge(const uint16_t vertex, uint16_t adjacentVertex) {
   list[vertex].push_back(adjacentVertex);
-  if(isUndirected) list[adjacentVertex].push_back(vertex);
-  else list[adjacentVertex] = std::vector<uint16_t>();
+  if(isUndirected) { 
+    if(!list[adjacentVertex].empty())list[adjacentVertex].push_back(vertex);
+    else list[adjacentVertex] = std::vector<uint16_t>();
+  }
 }
 
 void AdjListGraph::readFromFile(const std::string &path, bool undirected) {
@@ -67,19 +69,22 @@ void AdjListGraph::print() {
   std::cout << "\n";
 }
 
- void AdjListGraph::reverseGraph(){
+void AdjListGraph::reverseGraph(){
   if(isUndirected) return;
 
+  std::map<uint16_t, std::vector<uint16_t>> reversed;
+
   for (auto &[vertex, value] : list) {
+    if(reversed[vertex].empty()) reversed[vertex] = std::vector<uint16_t>();
     for(auto it = value.begin(); it != value.end(); ++it) {
-      std::cout<<vertex<<"\n";
-      list[*it].emplace_back(vertex);
-      it = value.erase(it);
+      reversed[*it].push_back(vertex);
     }
   }
- }
 
- void AdjListGraph::clearGraph() {
+  list = std::move(reversed);
+}
+
+void AdjListGraph::clearGraph() {
   list.clear();
   isUndirected = false;
- }
+}
