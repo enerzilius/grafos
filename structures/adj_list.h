@@ -7,15 +7,23 @@
 #include <vector>
 
 class AdjListGraph {
-  public:
+public:
   bool isUndirected = false;
   std::map<uint16_t, std::vector<uint16_t>> list;
   AdjListGraph(bool Undirected = false);
+  
   ~AdjListGraph();
-  void addEdge(const uint16_t vertex, uint16_t adjacentVertex);
-  void removeEdge(const uint16_t vertex, uint16_t adjacentVertex);
+
+  void addVertex(uint16_t vertex);
+  void removeVertex(uint16_t vertex);
+
+  void addEdge(uint16_t vertex, uint16_t adjacentVertex);
+  void removeEdge(uint16_t vertex, uint16_t adjacentVertex);
+  
   void readFromFile(const std::string &path, bool isUndirected = false);
+  
   void reverseGraph();
   void clearGraph();
+  
   void print();
 };

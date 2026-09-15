@@ -12,7 +12,11 @@ AdjListGraph::AdjListGraph(bool Undirected) {
 
 AdjListGraph::~AdjListGraph() { list = {}; }
 
-void AdjListGraph::addEdge(const uint16_t vertex, uint16_t adjacentVertex) {
+void AdjListGraph::addVertex(uint16_t vertex) {
+  list[vertex] = std::vector<uint16_t>();
+}
+
+void AdjListGraph::addEdge(uint16_t vertex, uint16_t adjacentVertex) {
   list[vertex].push_back(adjacentVertex);
   if(isUndirected) { 
     if(!list[adjacentVertex].empty())list[adjacentVertex].push_back(vertex);
