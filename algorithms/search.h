@@ -1,10 +1,10 @@
 #pragma once
 
 #include <cstdint>
-#include <functional>
 #include <map>
 #include <queue>
 #include <unordered_set>
+#include <vector>
 
 namespace gsa { // Graph Search Algorithms
 
@@ -16,5 +16,5 @@ void searchConnectedComponents(
     const std::map<uint16_t, std::vector<uint16_t>> &list,
     uint16_t beginAt = 0);
 void precedenceScheduling(const std::map<uint16_t, std::vector<uint16_t>> &list,
-                          uint16_t beginAt);
+                          uint16_t beginAt = 0);
 } // namespace gsa

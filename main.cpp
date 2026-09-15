@@ -30,5 +30,11 @@ int main() {
   graph.reverseGraph();
   graph.print();
 
+  graph.clearGraph();
+  graph.readFromFile("data/2a.txt");
+  graph.print();
+
+  gsa::precedenceScheduling(graph.list);
+
   exit(0);
 }

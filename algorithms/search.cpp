@@ -1,10 +1,7 @@
 #include "search.h"
-#include <cstdint>
+
 #include <iostream>
-#include <map>
-#include <queue>
 #include <stack>
-#include <vector>
 
 struct TableContents {
   bool marked;
@@ -24,11 +21,13 @@ connectedComponents(const std::map<uint16_t, std::vector<uint16_t>> &list,
 static uint16_t
 getUnmarked(const std::map<uint16_t, std::vector<uint16_t>> &list,
             const uint16_t beginAt);
+static void schedule(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                     std::stack<uint16_t> &postorder, uint16_t beginAt);
+
 static void printTable();
 static void
 printConnectedComponents(const std::map<uint16_t, uint16_t> &components);
-static void schedule(const std::map<uint16_t, std::vector<uint16_t>> &list,
-                     const std::stack<uint16_t> &postorder, uint16_t beginAt);
+static void printStack(std::stack<uint16_t> &stack);
 
 void gsa::depthFirstSearch(
     const std::map<uint16_t, std::vector<uint16_t>> &list,
@@ -40,7 +39,7 @@ void gsa::depthFirstSearch(
 }
 
 static void depthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
-                        const uint16_t beginAt = 0) {
+                        const uint16_t beginAt) {
 
   std::vector<uint16_t> currentVector = list.at(beginAt);
   if (currentVector.empty())
@@ -67,8 +66,7 @@ void gsa::breadthFirstSearch(
 }
 
 static void breadthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
-                          std::queue<uint16_t> &queue,
-                          const uint16_t beginAt = 0) {
+                          std::queue<uint16_t> &queue, const uint16_t beginAt) {
 
   std::vector<uint16_t> currentVector = list.at(beginAt);
 
@@ -166,4 +164,31 @@ void gsa::precedenceScheduling(
   marked.clear();
   marked.insert({beginAt, {true, beginAt}});
   schedule(list, postorder, beginAt);
+  printStack(postorder);
+}
+
+static void schedule(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                     std::stack<uint16_t> &postorder, uint16_t beginAt) {
+  std::vector<uint16_t> currentVector = list.at(beginAt);
+  if (currentVector.empty()) {
+    postorder.push(beginAt);
+    return;
+  }
+
+  for (const uint16_t vertex : currentVector) {
+    if (marked.find(vertex) != marked.end())
+      continue;
+    marked.insert({vertex, {true, beginAt}});
+
+    schedule(list, postorder, vertex);
+  }
+  postorder.push(beginAt);
+}
+
+static void printStack(std::stack<uint16_t> &stack) {
+  std::cout << "\nReverse postorder: \n";
+  while (!stack.empty()) {
+    std::cout << stack.top() << " ";
+    stack.pop();
+  }
 }

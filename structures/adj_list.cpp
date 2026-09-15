@@ -18,9 +18,11 @@ void AdjListGraph::addVertex(uint16_t vertex) {
 
 void AdjListGraph::addEdge(uint16_t vertex, uint16_t adjacentVertex) {
   list[vertex].push_back(adjacentVertex);
-  if(isUndirected) { 
-    if(!list[adjacentVertex].empty())list[adjacentVertex].push_back(vertex);
-    else list[adjacentVertex] = std::vector<uint16_t>();
+  if (isUndirected) {
+    if (!list[adjacentVertex].empty())
+      list[adjacentVertex].push_back(vertex);
+    else
+      list[adjacentVertex] = std::vector<uint16_t>();
   }
 }
 
@@ -29,9 +31,10 @@ void AdjListGraph::readFromFile(const std::string &path, bool undirected) {
   list.clear();
   std::ifstream file(path);
 
-  if (!file)
-    std::cout << " [!] Erro ao ler o arquivo [ " << path << " ]\n";
-
+  if (!file) {
+    std::cout << " [!] Error reading file: [ " << path << " ]\n";
+    return;
+  }
   std::string line;
 
   while (std::getline(file, line)) {
@@ -65,7 +68,8 @@ void AdjListGraph::print() {
   std::map<uint16_t, std::vector<uint16_t>>::iterator iterator;
   for (iterator = list.begin(); iterator != list.end(); iterator++) {
     std::cout << "\n" << iterator->first << ":";
-    if(iterator->second.empty()) continue;
+    if (iterator->second.empty())
+      continue;
     for (const uint16_t &vertex : iterator->second) {
       std::cout << " " << vertex;
     }
@@ -73,14 +77,16 @@ void AdjListGraph::print() {
   std::cout << "\n";
 }
 
-void AdjListGraph::reverseGraph(){
-  if(isUndirected) return;
+void AdjListGraph::reverseGraph() {
+  if (isUndirected)
+    return;
 
   std::map<uint16_t, std::vector<uint16_t>> reversed;
 
   for (auto &[vertex, value] : list) {
-    if(reversed[vertex].empty()) reversed[vertex] = std::vector<uint16_t>();
-    for(auto it = value.begin(); it != value.end(); ++it) {
+    if (reversed[vertex].empty())
+      reversed[vertex] = std::vector<uint16_t>();
+    for (auto it = value.begin(); it != value.end(); ++it) {
       reversed[*it].push_back(vertex);
     }
   }
