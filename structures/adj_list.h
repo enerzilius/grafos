@@ -26,4 +26,7 @@ public:
   void clearGraph();
   
   void print();
+private:
+  void removeVertexUndirected(uint16_t vertex);
+  void removeVertexDirected(uint16_t vertex);
 };
