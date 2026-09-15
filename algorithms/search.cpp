@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <queue>
+#include <stack>
 #include <vector>
 
 struct TableContents {
@@ -26,6 +27,8 @@ getUnmarked(const std::map<uint16_t, std::vector<uint16_t>> &list,
 static void printTable();
 static void
 printConnectedComponents(const std::map<uint16_t, uint16_t> &components);
+static void schedule(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                     const std::stack<uint16_t> &postorder, uint16_t beginAt);
 
 void gsa::depthFirstSearch(
     const std::map<uint16_t, std::vector<uint16_t>> &list,
@@ -154,4 +157,13 @@ static void printConnectedComponents(
     std::cout << key << " | " << value << "\n";
   }
   std::cout << "\n";
+}
+
+void gsa::precedenceScheduling(
+    const std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t beginAt) {
+  std::stack<uint16_t> postorder;
+
+  marked.clear();
+  marked.insert({beginAt, {true, beginAt}});
+  schedule(list, postorder, beginAt);
 }
