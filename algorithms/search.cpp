@@ -18,6 +18,9 @@ static void
 connectedComponents(const std::map<uint16_t, std::vector<uint16_t>> &list,
                     std::map<uint16_t, uint16_t> &components,
                     uint16_t componentId, const uint16_t beginAt);
+static void stronglyConnectedComponents(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                    std::map<uint16_t, uint16_t> &components,
+                    uint16_t componentId, const uint16_t beginAt);
 static uint16_t
 getUnmarked(const std::map<uint16_t, std::vector<uint16_t>> &list,
             const uint16_t beginAt);
@@ -159,6 +162,17 @@ static void printConnectedComponents(
   std::cout << "\n";
 }
 
+void gsa::precedenceScheduling(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                          std::stack<uint16_t>& returnStack, uint16_t beginAt) {
+  std::stack<uint16_t> postorder;
+  
+  marked.clear();
+  marked.insert({beginAt, {true, beginAt}});
+  schedule(list, postorder, beginAt);
+  //printStack(postorder);
+  returnStack = std::move(postorder);
+}
+
 void gsa::precedenceScheduling(
     const std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t beginAt) {
   std::stack<uint16_t> postorder;
@@ -194,4 +208,57 @@ static void printStack(std::stack<uint16_t> &stack) {
     stack.pop();
   }
   std::cout<<"\n";
+}
+
+void gsa::kosarajuShahirSCC(
+    const AdjListGraph& graph) {
+  if(graph.isUndirected) {
+    std::cout<<"[!] Graph is undirected, searching for connected components.\n";
+    gsa::searchConnectedComponents(graph.list, 0);
+    return;
+  }
+
+  // Kosaraju-Shahir
+
+  // Phase 1
+  AdjListGraph reversed = graph;
+  reversed.reverseGraph();
+
+  std::stack<uint16_t> postorder;
+  gsa::precedenceScheduling(reversed.list, postorder);
+
+  // Phase 2
+  marked.clear();
+  std::map<uint16_t, uint16_t> components;
+  uint16_t componentId = 0;
+  bool checkedAll = false;
+
+  uint16_t beginAt =  postorder.top();
+  marked.insert({beginAt, {true, beginAt}});
+
+  while (!postorder.empty()) {
+    stronglyConnectedComponents(graph.list, components, componentId, beginAt);
+
+    postorder.pop();
+    componentId++;
+    beginAt = postorder.top();
+  }
+  printConnectedComponents(components);
+}
+
+static void stronglyConnectedComponents(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                    std::map<uint16_t, uint16_t> &components,
+                    uint16_t componentId, const uint16_t beginAt) {
+  std::vector<uint16_t> currentVector = list.at(beginAt);
+  components.insert({beginAt, componentId});
+  if (currentVector.empty())
+    return;
+
+  for (const uint16_t vertex : currentVector) {
+    if (marked.find(vertex) != marked.end())
+      continue;
+    marked.insert({vertex, {true, beginAt}});
+
+    stronglyConnectedComponents(list, components, componentId, vertex);
+  }
 }
