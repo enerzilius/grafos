@@ -140,7 +140,8 @@ getUnmarked(const std::map<uint16_t, std::vector<uint16_t>> &list,
 }
 
 static void printTable() {
-  std::cout << "\nv | marked | edgeTo \n";
+  std::cout<<"\nSEARCH'S RESULTING TABLE\n";
+  std::cout << "v | marked | edgeTo \n";
   for (auto const &[key, value] : marked) {
     std::cout << key << " | " << (value.marked ? "T" : "F") << " | "
               << value.edgeTo << "\n";
@@ -150,7 +151,8 @@ static void printTable() {
 
 static void printConnectedComponents(
     const std::map<uint16_t, uint16_t> &connectedComponents) {
-  std::cout << "\nv | componentId\n";
+  std::cout<<"\nCONNECTED COMPONENTS\n";
+  std::cout << "v | componentId\n";
   for (auto const &[key, value] : connectedComponents) {
     std::cout << key << " | " << value << "\n";
   }
@@ -186,9 +188,10 @@ static void schedule(const std::map<uint16_t, std::vector<uint16_t>> &list,
 }
 
 static void printStack(std::stack<uint16_t> &stack) {
-  std::cout << "\nReverse postorder: \n";
+  std::cout << "\nPRECENDE SCHEDULING'S REVERSE POSTORDER: \n";
   while (!stack.empty()) {
     std::cout << stack.top() << " ";
     stack.pop();
   }
+  std::cout<<"\n";
 }

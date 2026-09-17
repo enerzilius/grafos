@@ -66,6 +66,7 @@ void AdjListGraph::readFromFile(const std::string &path, bool undirected) {
 
 void AdjListGraph::print() {
   std::map<uint16_t, std::vector<uint16_t>>::iterator iterator;
+  std::cout<<"\nADJACENCY LIST GRAPH";
   for (iterator = list.begin(); iterator != list.end(); iterator++) {
     std::cout << "\n" << iterator->first << ":";
     if (iterator->second.empty())
