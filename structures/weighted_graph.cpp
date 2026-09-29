@@ -1,0 +1,101 @@
+#include "weighted_graph.h"
+#include <cstdint>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <vector>
+
+WeightedGraph::WeightedGraph(bool Undirected) {
+  isUndirected = Undirected;
+  list = {};
+}
+
+WeightedGraph::~WeightedGraph() { list = {}; }
+
+void WeightedGraph::addVertex(uint16_t vertex) {
+  list[vertex] = std::vector<uint16_t>();
+}
+
+void WeightedGraph::addEdge(uint16_t vertex, uint16_t adjacentVertex, float weight) {
+  list[vertex].push_back(adjacentVertex);
+  if (isUndirected) {
+    if (!list[adjacentVertex].empty())
+      list[adjacentVertex].push_back(vertex);
+    else
+      list[adjacentVertex] = std::vector<uint16_t>();
+  }
+}
+
+void WeightedGraph::readFromFile(const std::string &path, bool undirected) {
+  isUndirected = undirected;
+  list.clear();
+  std::ifstream file(path);
+
+  if (!file) {
+    std::cout << " [!] Error reading file: [ " << path << " ]\n";
+    return;
+  }
+  std::string line;
+
+  while (std::getline(file, line)) {
+    if (line.empty())
+      continue;
+
+    std::istringstream iss(line);
+
+    std::string keyToken;
+    if (!std::getline(iss, keyToken, ':'))
+      continue;
+
+    uint16_t key;
+    try {
+      key = static_cast<uint16_t>(std::stoi(keyToken));
+    } catch (...) {
+      continue;
+    }
+
+    std::vector<uint16_t> values;
+    int v;
+    while (iss >> v) {
+      values.push_back(static_cast<uint16_t>(v));
+    }
+
+    list[key] = std::move(values);
+  }
+}
+
+void WeightedGraph::print() {
+  std::map<uint16_t, std::vector<uint16_t>>::iterator iterator;
+  std::cout<<"\nADJACENCY LIST GRAPH";
+  for (iterator = list.begin(); iterator != list.end(); iterator++) {
+    std::cout << "\n" << iterator->first << ":";
+    if (iterator->second.empty())
+      continue;
+    for (const uint16_t &vertex : iterator->second) {
+      std::cout << " " << vertex;
+    }
+  }
+  std::cout << "\n";
+}
+
+void WeightedGraph::reverseGraph() {
+  if (isUndirected)
+    return;
+
+  std::map<uint16_t, std::vector<uint16_t>> reversed;
+
+  for (auto &[vertex, value] : list) {
+    if (reversed[vertex].empty())
+      reversed[vertex] = std::vector<uint16_t>();
+    for (auto it = value.begin(); it != value.end(); ++it) {
+      reversed[*it].push_back(vertex);
+    }
+  }
+
+  list = std::move(reversed);
+}
+
+void WeightedGraph::clearGraph() {
+  list.clear();
+  isUndirected = false;
+}
