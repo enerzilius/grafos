@@ -262,3 +262,16 @@ static void stronglyConnectedComponents(const std::map<uint16_t, std::vector<uin
     stronglyConnectedComponents(list, components, componentId, vertex);
   }
 }
+
+void gsa::lazyPrimMST(const std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t begin_at) {
+  // precisa de uma fila de prioridade
+
+  // começa no vértice 0 e adiciona todas as arestas dele em uma fila de prioridade ordenada pelo peso
+
+  // adiciona a aresta com menor peso pra árvore (se ela não conecta aos vertices que já estão na árvore)
+  // remove a aresta adicionada na lista
+  // adiciona as arestas conectadas ao novo vértice da árvore à lista de prioridade (tem que manter ordenada) 
+  // repete pro próximo vértice
+
+  // repete até v-1
+} 
