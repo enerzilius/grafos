@@ -26,4 +26,5 @@ void precedenceScheduling(const std::map<uint16_t, std::vector<uint16_t>> &list,
                           std::stack<uint16_t>& returnStack, uint16_t beginAt = 0);
 void kruskalMST(const std::map<uint16_t, std::vector<uint16_t>> &list);
 void lazyPrimMST(const std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t begin_at = 0);
+double closenessCentrality(std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t node = 0);
 } // namespace gsa

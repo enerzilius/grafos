@@ -312,3 +312,16 @@ void gsa::lazyPrimMST(const std::map<uint16_t, std::vector<uint16_t>> &list, uin
 
   // repete até v-1
 } 
+
+double gsa::closenessCentrality(std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t node) {
+  double distanceSum = 0.0;
+
+  std::map<uint16_t, std::vector<uint16_t>>::iterator it;
+  for (it = list.begin(); it != list.end(); it++) {
+    if(it->first == node) continue;
+    distanceSum += shortestPath(list, node, it->first).size() * 1.0;
+  }
+
+  int N = list.size();
+  return (N-1)/distanceSum;
+}
