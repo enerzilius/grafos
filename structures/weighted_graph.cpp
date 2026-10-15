@@ -26,7 +26,7 @@ void WeightedGraph::addEdge(uint16_t vertex, uint16_t adjacentVertex, float weig
   }
 }
 
-void WeightedGraph::readFromFile(const std::string &path, bool undirected) {
+void WeightedGraph::readFromTextFile(const std::string &path, bool undirected) {
   isUndirected = undirected;
   list.clear();
   std::ifstream file(path);

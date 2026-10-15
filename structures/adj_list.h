@@ -20,7 +20,9 @@ public:
   void addEdge(uint16_t vertex, uint16_t adjacentVertex);
   void removeEdge(uint16_t vertex, uint16_t adjacentVertex);
   
-  void readFromFile(const std::string &path, bool isUndirected = false);
+  void readFromTextFile(const std::string &path, bool isUndirected = false);
+  void readFromGEXFFile(const std::string &path, bool isUndirected = false);
+
   
   void reverseGraph();
   void clearGraph();

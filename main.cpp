@@ -4,17 +4,17 @@
 int main() {
   AdjListGraph graph(true);
 
-  graph.readFromFile("data/1a.txt");
+  graph.readFromTextFile("data/1a.txt");
   graph.print();
 
   gsa::depthFirstSearch(graph.list, 0);
 
-  graph.readFromFile("data/1b.txt");
+  graph.readFromTextFile("data/1b.txt");
   graph.print();
 
   gsa::breadthFirstSearch(graph.list, 0);
 
-  graph.readFromFile("data/1c.txt");
+  graph.readFromTextFile("data/1c.txt");
   graph.print();
 
   gsa::searchConnectedComponents(graph.list);
@@ -30,11 +30,16 @@ int main() {
   graph.reverseGraph();
   graph.print();
 
+  gsa::precedenceScheduling(graph.list);
+
   graph.clearGraph();
-  graph.readFromFile("data/2a.txt");
+  graph.readFromTextFile("data/2a.txt");
   graph.print();
 
-  gsa::precedenceScheduling(graph.list);
+  graph.readFromGEXFFile("data/teste_gexf.gexf");
+  graph.print();
+
+
 
   exit(0);
 }

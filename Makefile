@@ -7,11 +7,12 @@ STRUCT = structures
 GRAPHS = graphs
 ALG = algorithms
 SEARCH = search
+PARSE = parser
 
 comp_file = $(CC) $(1).cpp $(addprefix $(BUILD)/,$(addsuffix .o,$(2))) -o $(BUILD)/$(1).out
 
-main: $(LIST) $(SEARCH)
-	$(call comp_file,main,$(LIST) $(SEARCH))
+main: $(LIST) $(SEARCH) $(PARSE)
+	$(call comp_file,main,$(LIST) $(SEARCH) $(PARSE))
 
 $(GRAPHS): $(LIST) $(MTX)
 
@@ -23,6 +24,9 @@ $(MTX): $(BUILD)
 
 $(SEARCH): $(BUILD) 
 	$(CC) -c $(ALG)/$(SEARCH).cpp -o $(BUILD)/$(SEARCH).o
+
+$(PARSE): $(BUILD) 
+	$(CC) -c $(ALG)/$(PARSE).cpp -o $(BUILD)/$(PARSE).o
 
 $(BUILD):
 	mkdir -p $(BUILD)
