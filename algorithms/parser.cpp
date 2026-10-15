@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 std::string localName(const std::string &name) {
   size_t colon = name.find(':');
@@ -62,8 +63,8 @@ std::string parseTag(const std::string &body,
 bool toId(const std::string &s, uint16_t &out) {
   try {
     size_t used = 0;
-    unsigned long v = std::stoul(s, &used);
-    if (used != s.size() || v > UINT16_MAX)
+    double v = std::stod(s, &used);
+    if (used != s.size() || v < 0 || v > UINT16_MAX || v != std::floor(v))
       return false;
     out = static_cast<uint16_t>(v);
     return true;
