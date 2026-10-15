@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stack>
+#include <algorithm>
 
 struct TableContents {
   bool marked;
@@ -73,8 +74,8 @@ static void breadthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
 
   std::vector<uint16_t> currentVector = list.at(beginAt);
 
-  if (currentVector.empty() || queue.empty())
-    return;
+  // if (currentVector.empty() || queue.empty())
+  //   return;
 
   queue.pop();
 
@@ -89,6 +90,42 @@ static void breadthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
   if (queue.empty())
     return;
   breadthSearch(list, queue, queue.front());
+}
+
+std::vector<uint16_t> gsa::shortestPath(const std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t from, uint16_t to) {
+  std::map<uint16_t, uint16_t> parent;
+  std::queue<uint16_t> queue;
+
+  parent[from] = from;
+  queue.push(from);
+
+  while (!queue.empty()) {
+    const uint16_t current = queue.front();
+    queue.pop();
+
+    if (current == to)
+      break;
+
+    const auto it = list.find(current);
+    if (it == list.end())
+      continue;
+
+    for (const uint16_t neighbor : it->second) {
+      if (parent.count(neighbor))
+        continue;
+      parent[neighbor] = current;
+      queue.push(neighbor);
+    }
+  }
+  if (!parent.count(to))
+    return std::vector<uint16_t>{};
+
+  std::vector<uint16_t> path;
+  for (uint16_t v = to; v != from; v = parent[v])
+    path.push_back(v);
+  path.push_back(from);
+  std::reverse(path.begin(), path.end());
+  return path;
 }
 
 void gsa::searchConnectedComponents(

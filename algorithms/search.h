@@ -14,6 +14,7 @@ void depthFirstSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
                       uint16_t beginAt = 0);
 void breadthFirstSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
                         uint16_t beginAt = 0);
+std::vector<uint16_t> shortestPath(const std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t from, uint16_t to);
 void searchConnectedComponents(
     const std::map<uint16_t, std::vector<uint16_t>> &list,
     uint16_t beginAt = 0);
