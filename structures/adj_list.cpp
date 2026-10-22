@@ -1,5 +1,5 @@
 #include "adj_list.h"
-#include "../algorithms/parser.h"
+#include "../utils/parser.h"
 #include <cstdint>
 #include <fstream>
 #include <iostream>

@@ -14,8 +14,8 @@ int main() {
   node = 3;
   auto cC_2 = gsa::closenessCentrality(graph.list, node);
 
-  std::cout<<"Closeness centrality of node ["<<node<<"] = "<<cC_1<<"\n";
-  std::cout<<"Closeness centrality of node ["<<node<<"] = "<<cC_2<<"\n";
+  std::cout<<"Closeness centrality of node [0] = "<<cC_1<<"\n";
+  std::cout<<"Closeness centrality of node [3] = "<<cC_2<<"\n";
 
   exit(0);
 }

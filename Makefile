@@ -8,6 +8,7 @@ GRAPHS = graphs
 ALG = algorithms
 SEARCH = search
 PARSE = parser
+UTILS = utils
 
 comp_file = $(CC) $(1).cpp $(addprefix $(BUILD)/,$(addsuffix .o,$(2))) -o $(BUILD)/$(1).out
 
@@ -26,7 +27,7 @@ $(SEARCH): $(BUILD)
 	$(CC) -c $(ALG)/$(SEARCH).cpp -o $(BUILD)/$(SEARCH).o
 
 $(PARSE): $(BUILD) 
-	$(CC) -c $(ALG)/$(PARSE).cpp -o $(BUILD)/$(PARSE).o
+	$(CC) -c $(UTILS)/$(PARSE).cpp -o $(BUILD)/$(PARSE).o
 
 $(BUILD):
 	mkdir -p $(BUILD)
