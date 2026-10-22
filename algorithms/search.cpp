@@ -319,7 +319,7 @@ double gsa::closenessCentrality(std::map<uint16_t, std::vector<uint16_t>> &list,
   std::map<uint16_t, std::vector<uint16_t>>::iterator it;
   for (it = list.begin(); it != list.end(); it++) {
     if(it->first == node) continue;
-    double distance = (shortestPath(list, node, it->first).size() - 1) * 1.0;
+    double distance = static_cast<double>(shortestPath(list, node, it->first).size() - 1);
     //std::cout<<"Distance between "<<node<<" and "<<it->first<<" = "<<distance<<"\n";
     distanceSum += distance;
   }

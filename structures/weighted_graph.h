@@ -14,7 +14,7 @@ struct Edge {
 class WeightedGraph {
 public:
   bool isUndirected = false;
-  std::map<uint16_t, std::vector<uint16_t>> list;
+  std::map<uint16_t, std::vector<Edge>> list;
   WeightedGraph(bool Undirected = false);
   
   ~WeightedGraph();
@@ -22,7 +22,7 @@ public:
   void addVertex(uint16_t vertex);
   void removeVertex(uint16_t vertex);
 
-  void addEdge(uint16_t vertex, uint16_t adjacentVertex, float weight);
+  void addEdge(uint16_t vertex, Edge edge, float weight);
   void removeEdge(uint16_t vertex, uint16_t adjacentVertex);
   
   void readFromTextFile(const std::string &path, bool isUndirected = false);

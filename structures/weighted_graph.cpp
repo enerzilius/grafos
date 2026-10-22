@@ -13,66 +13,69 @@ WeightedGraph::WeightedGraph(bool Undirected) {
 WeightedGraph::~WeightedGraph() { list = {}; }
 
 void WeightedGraph::addVertex(uint16_t vertex) {
-  list[vertex] = std::vector<uint16_t>();
+  list[vertex] = std::vector<Edge>();
 }
 
-void WeightedGraph::addEdge(uint16_t vertex, uint16_t adjacentVertex, float weight) {
-  list[vertex].push_back(adjacentVertex);
+void WeightedGraph::addEdge(uint16_t vertex, Edge edge, float weight) {
+  list[vertex].push_back(edge);
   if (isUndirected) {
-    if (!list[adjacentVertex].empty())
-      list[adjacentVertex].push_back(vertex);
+    if (!list[edge.v].empty()) {
+      Edge edge2 = {.v = vertex, .weight = edge.weight};
+      list[edge.v].push_back(edge2);
+    }
     else
-      list[adjacentVertex] = std::vector<uint16_t>();
+      list[edge.v] = std::vector<Edge>();
   }
 }
 
 void WeightedGraph::readFromTextFile(const std::string &path, bool undirected) {
-  isUndirected = undirected;
-  list.clear();
-  std::ifstream file(path);
+    isUndirected = undirected;
+    list.clear();
 
-  if (!file) {
-    std::cout << " [!] Error reading file: [ " << path << " ]\n";
-    return;
-  }
-  std::string line;
-
-  while (std::getline(file, line)) {
-    if (line.empty())
-      continue;
-
-    std::istringstream iss(line);
-
-    std::string keyToken;
-    if (!std::getline(iss, keyToken, ':'))
-      continue;
-
-    uint16_t key;
-    try {
-      key = static_cast<uint16_t>(std::stoi(keyToken));
-    } catch (...) {
-      continue;
+    std::ifstream file(path);
+    if (!file) {
+        std::cout << " [!] Error reading file: [ " << path << " ]\n";
+        return;
     }
 
-    std::vector<uint16_t> values;
-    int v;
-    while (iss >> v) {
-      values.push_back(static_cast<uint16_t>(v));
-    }
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.empty())
+            continue;
 
-    list[key] = std::move(values);
-  }
+        std::istringstream iss(line);
+
+        int from, to;
+        float weight;
+
+        // Skip malformed lines
+        if (!(iss >> from >> to >> weight))
+            continue;
+
+        auto u = static_cast<uint16_t>(from);
+        auto v = static_cast<uint16_t>(to);
+
+        list[u].push_back({v, weight});
+
+        if (undirected) {
+            list[v].push_back({u, weight});
+        } else {
+            // Make sure the destination node exists in the map,
+            // even if it has no outgoing edges
+            list[v];
+        }
+    }
 }
 
 void WeightedGraph::print() {
-  std::map<uint16_t, std::vector<uint16_t>>::iterator iterator;
-  std::cout<<"\nADJACENCY LIST GRAPH";
+  std::map<uint16_t, std::vector<Edge>>::iterator iterator;
+  std::cout<<"\nADJACENCY LIST GRAPH\n";
   for (iterator = list.begin(); iterator != list.end(); iterator++) {
-    std::cout << "\n" << iterator->first << ":";
     if (iterator->second.empty())
       continue;
-    for (const uint16_t &vertex : iterator->second) {
-      std::cout << " " << vertex;
+    
+    for (const Edge &edge : iterator->second) {
+      std::cout << iterator->first << " " << edge.v << " " << edge.weight <<"\n";
     }
   }
   std::cout << "\n";
@@ -82,13 +85,14 @@ void WeightedGraph::reverseGraph() {
   if (isUndirected)
     return;
 
-  std::map<uint16_t, std::vector<uint16_t>> reversed;
+  std::map<uint16_t, std::vector<Edge>> reversed;
 
   for (auto &[vertex, value] : list) {
     if (reversed[vertex].empty())
-      reversed[vertex] = std::vector<uint16_t>();
+      reversed[vertex] = std::vector<Edge>();
     for (auto it = value.begin(); it != value.end(); ++it) {
-      reversed[*it].push_back(vertex);
+      Edge edge{.v = vertex, .weight = it->weight};
+      reversed[it->v].push_back(edge);
     }
   }
 
