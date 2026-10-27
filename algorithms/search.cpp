@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stack>
 #include <algorithm>
+#include <limits>
 
 struct TableContents {
   bool marked;
@@ -327,4 +328,53 @@ double gsa::closenessCentrality(std::map<uint16_t, std::vector<uint16_t>> &list,
   int N = list.size();
   //std::cout<<"("<<N<<"-1) / "<<distanceSum<<"\n";
   return (N-1)/distanceSum;
+}
+
+// A excentricidade e a maior distancia de caminho minimo de um vertice
+// aos demais; se algum vertice nao for alcancavel, ela e infinita.
+// Ref: https://www.baeldung.com/cs/graphs-eccentricity-radius-diameter-center-periphery
+std::map<uint16_t, double> gsa::eccentricities(
+    const std::map<uint16_t, std::vector<uint16_t>> &list) {
+  std::map<uint16_t, double> result;
+
+  // 
+  for (auto vertex = list.begin(); vertex != list.end(); ++vertex) {
+    std::map<uint16_t, std::size_t> distances;
+    std::queue<uint16_t> queue;
+    distances[vertex->first] = 0;
+    queue.push(vertex->first);
+
+    while (!queue.empty()) {
+      const uint16_t current = queue.front();
+      queue.pop();
+
+      const auto adjacent = list.find(current);
+      if (adjacent == list.end())
+        continue;
+
+      for (const uint16_t neighbor : adjacent->second) {
+        if (distances.count(neighbor))
+          continue;
+        distances[neighbor] = distances[current] + 1;
+        queue.push(neighbor);
+      }
+    }
+
+    bool unreachableVertex = false;
+    std::size_t eccentricity = 0;
+    for (auto otherVertex = list.begin(); otherVertex != list.end();
+         ++otherVertex) {
+      const auto distance = distances.find(otherVertex->first);
+      if (distance == distances.end()) {
+        unreachableVertex = true;
+        break;
+      }
+      eccentricity = std::max(eccentricity, distance->second);
+    }
+
+    result[vertex->first] =
+        unreachableVertex ? std::numeric_limits<double>::infinity()
+                          : static_cast<double>(eccentricity);
+  }
+  return result;
 }
