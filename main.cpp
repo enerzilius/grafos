@@ -4,11 +4,23 @@
 #include <iostream>
 
 int main() {
-  // AdjListGraph graph(true);
+  AdjListGraph graph(true);
 
-  // graph.readFromGEXFFile("data/teste_gexf.gexf");
-  // graph.readFromTextFile("data/teste_cc.txt");
-  // graph.print();
+  graph.readFromGEXFFile("data/teste_gexf.gexf");
+  graph.readFromTextFile("data/teste_cc.txt");
+  graph.print();
+
+  const auto eccentricities = gsa::eccentricities(graph.list);
+
+  std::cout << "\nEccentricity of Vertices\n";
+  std::cout << "Node | Eccentricity\n";
+  for (const auto &[node, eccentricity] : eccentricities) {
+    std::cout << node << " | ";
+    if (std::isinf(eccentricity))
+      std::cout << "infinite\n";
+    else
+      std::cout << eccentricity << "\n";
+  }
 
   WeightedGraph graph(true);
   graph.readFromTextFile("data/teste_weighted.txt");
