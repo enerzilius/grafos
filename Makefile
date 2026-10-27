@@ -2,6 +2,7 @@ CC = g++
 LIST = adj_list
 WEIGHT = weighted_graph
 MTX = adj_matrix
+STATS = graph_statistics
 
 BUILD = build
 STRUCT = structures
@@ -13,8 +14,8 @@ UTILS = utils
 
 comp_file = $(CC) $(1).cpp $(addprefix $(BUILD)/,$(addsuffix .o,$(2))) -o $(BUILD)/$(1).out
 
-main: $(LIST) $(WEIGHT) $(SEARCH) $(PARSE)
-	$(call comp_file,main,$(LIST) $(WEIGHT) $(SEARCH) $(PARSE))
+main: $(LIST) $(WEIGHT) $(SEARCH) $(PARSE) $(STATS)
+	$(call comp_file,main,$(LIST) $(WEIGHT) $(SEARCH) $(PARSE) $(STATS))
 
 $(GRAPHS): $(LIST) $(WEIGHT) $(MTX)
 
@@ -29,6 +30,9 @@ $(MTX): $(BUILD)
 
 $(SEARCH): $(BUILD) 
 	$(CC) -c $(ALG)/$(SEARCH).cpp -o $(BUILD)/$(SEARCH).o
+
+$(STATS): $(BUILD)
+	$(CC) -c $(ALG)/$(STATS).cpp -o $(BUILD)/$(STATS).o
 
 $(PARSE): $(BUILD) 
 	$(CC) -c $(UTILS)/$(PARSE).cpp -o $(BUILD)/$(PARSE).o

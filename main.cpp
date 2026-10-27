@@ -1,33 +1,28 @@
-#include "algorithms/search.h"
+#include "algorithms/graph_statistics.h"
 #include "structures/adj_list.h"
-#include <cmath>
 #include <iostream>
 
 int main() {
   AdjListGraph graph(true);
 
-  graph.readFromTextFile("data/teste_cc.txt");
-  graph.print();
+  // O segundo argumento (true) é o que realmente marca o grafo como não
+  // dirigido: readFromGEXFFile sobrescreve a flag passada no construtor.
+  graph.readFromGEXFFile("data/LesMiserables.gexf", true);
 
-  const auto eccentricities = gsa::eccentricities(graph.list);
+  if (graph.list.empty()) {
+    std::cout << "Grafo vazio, nada a calcular.\n";
+    return 1;
+  }
+  std::cout << "Vertices lidos: " << graph.list.size() << "\n";
 
-  std::cout << "\nEccentricity of Vertices\n";
-  std::cout << "Node | Eccentricity\n";
-  for (const auto &[node, eccentricity] : eccentricities) {
-    std::cout << node << " | ";
-    if (std::isinf(eccentricity))
-      std::cout << "infinite\n";
-    else
-      std::cout << eccentricity << "\n";
+  GraphStatistics stats(graph);
+
+  if (!stats.writeEccentricity("eccentricity.txt") ||
+      !stats.writeClosenessCentrality("closeness_centrality.txt")) {
+    std::cout << "Erro ao escrever os arquivos de saida.\n";
+    return 1;
   }
 
-  uint16_t node = 0;
-  auto cC_1 = gsa::closenessCentrality(graph.list, node);
-  node = 3;
-  auto cC_2 = gsa::closenessCentrality(graph.list, node);
-
-  std::cout << "Closeness centrality of node [0] = " << cC_1 << "\n";
-  std::cout << "Closeness centrality of node [3] = " << cC_2 << "\n";
-
-  exit(0);
+  std::cout << "Gerados: eccentricity.txt e closeness_centrality.txt\n";
+  return 0;
 }
