@@ -60,6 +60,44 @@ GraphStatistics::bfsDistances(uint16_t source) const {
   return distances;
 }
 
+std::map<uint16_t, std::vector<std::vector<uint16_t>>>
+GraphStatistics::bfsPaths(uint16_t source) const {
+  std::map<uint16_t, std::vector<std::vector<uint16_t>>> paths;
+  std::map<uint16_t, size_t> dist;
+  std::queue<uint16_t> queue;
+
+  paths[source] = {{source}};
+  dist[source] = 0;
+  queue.push(source);
+
+  while (!queue.empty()) {
+    const uint16_t current = queue.front();
+    queue.pop();
+
+    const auto adjacent = graph_.list.find(current);
+    if (adjacent == graph_.list.end())
+      continue;
+
+    for (const uint16_t neighbor : adjacent->second) {
+      // First time we see this vertex: it's on the next BFS level.
+      if (!dist.count(neighbor)) {
+        dist[neighbor] = dist[current] + 1;
+        queue.push(neighbor);
+      }
+
+      // Only extend along edges that stay on a shortest path.
+      if (dist[neighbor] == dist[current] + 1) {
+        for (const auto &p : paths[current]) {
+          std::vector<uint16_t> path = p;
+          path.push_back(neighbor);
+          paths[neighbor].push_back(std::move(path));
+        }
+      }
+    }
+  }
+  return paths;
+}
+
 // Excentricidade (eccentricity)
 // A excentricidade de um vértice v é a maior distância de caminho mínimo entre
 // v e qualquer outro vértice do grafo:  ecc(v) = max_u d(v, u).
@@ -119,33 +157,43 @@ std::map<uint16_t, double> GraphStatistics::closenessCentralities() const {
 }
 
 // Calcula e armazena os menores caminhos para todos os pares de nós
-std::map<std::pair<uint16_t, uint16_t>, double>
-GraphStatistics::calculateAllDistances() const {
-  std::map<std::pair<uint16_t, uint16_t>, double> result;
+std::map<std::pair<uint16_t, uint16_t>, std::vector<std::vector<uint16_t>>>
+GraphStatistics::calculateAllShortestPaths() const {
+  std::map<std::pair<uint16_t, uint16_t>, std::vector<std::vector<uint16_t>>>
+      result;
 
   for (const auto &[v, list] : graph_.list) {
-    const auto distances = bfsDistances(v);
-    for (const auto &[u, distance] : distances) {
-      auto pair = std::make_pair(v, u);
-      result[pair] = distance;
+    auto paths = bfsPaths(v); // non-const so the move really moves
+    for (auto &[u, pathList] : paths) {
+      if (v == u)
+        continue;
+      result[{v, u}] = std::move(pathList);
     }
   }
 
-  return std::move(result);
+  return result;
 }
 
 // Descobre o número de menores distâncias que passam por um nó
-size_t GraphStatistics::getDistancesThroughV(
-    std::map<std::pair<uint16_t, uint16_t>, double> &distances,
+double GraphStatistics::getDistancesThroughV(
+    const std::map<std::pair<uint16_t, uint16_t>,
+                   std::vector<std::vector<uint16_t>>> &distances,
     uint16_t v) const {
-  size_t n = 0;
+  double total = 0.0;
 
-  for (const auto &[pair, distance] : distances) {
+  for (const auto &[pair, pathList] : distances) {
     if (pair.first == v || pair.second == v)
-      n++;
+      continue;
+
+    size_t through = 0;
+    for (const auto &path : pathList) {
+      if (std::find(path.begin(), path.end(), v) != path.end())
+        through++;
+    }
+    total += static_cast<double>(through) / pathList.size();
   }
 
-  return n;
+  return total;
 }
 
 // Betweeness Centrality
@@ -153,40 +201,22 @@ size_t GraphStatistics::getDistancesThroughV(
 // de pares de vértices no grafo. O cálculo é feito fazendo o somatório da
 // divisão do número de menores caminhos entre dois nós que passa pelo vértice
 // analisado pelo menores caminhos entre esses nós, para cada nó:
-// betweeness_centrality(v) = sum(s_stv/s_st)
-// onde s != v != t, v é o nó em questão, s_st é o número de menores caminhos de
-// um nó s a um t e s_st(v) e o número de menores caminhos de s a t que passam
-// por v. A normalização é feita após ser isso ser calculado para todos os nós
+// betweeness_centrality(v) = sum(sigma_stv/sigma_st)
+// onde s != v != t, v é o nó em questão, sigma_st é o número de menores
+// caminhos de um nó s a um t e sigma_stv e o número de menores caminhos de s
+// a t que passam por v.
 std::map<uint16_t, double> GraphStatistics::betweenessCentralities() const {
   std::map<uint16_t, double> result;
 
-  auto distances = calculateAllDistances();
-  size_t allDistances = distances.size();
+  const auto distances = calculateAllShortestPaths();
+  const double n = static_cast<double>(graph_.list.size());
+  const double norm = (n > 2) ? (n - 1) * (n - 2) : 1.0;
 
-  uint32_t sum = 0;
   for (const auto &[vertex, adjacent] : graph_.list) {
-    size_t distancesV = getDistancesThroughV(distances, vertex);
-    result[vertex] = static_cast<float>(distancesV) / allDistances;
+    const double sum = getDistancesThroughV(distances, vertex);
+    result[vertex] = distances.empty() ? 0.0 : sum / norm;
   }
-  return std::move(result);
-}
-
-// A normalização:
-// normal(bc[v])) =  (bc[v] - min(bc)) / (max(bc) - min[bc])
-// onde bc é um vetor com a betweeness centrality de todos os nós e e bc[v] e a
-// entrada sendo normalizada.
-std::map<uint16_t, double>
-GraphStatistics::normalizeBC(std::map<uint16_t, double> bcMap) const {
-  std::map<uint16_t, double> result;
-  size_t size = bcMap.size();
-  double min = mapMin(bcMap);
-  double max = mapMax(bcMap);
-
-  for (const auto &[node, distance] : bcMap) {
-    result[node] = (distance - min) / (max - min);
-  }
-
-  return std::move(result);
+  return result;
 }
 
 bool GraphStatistics::writeEccentricity(const std::string &path) const {
@@ -220,8 +250,8 @@ bool GraphStatistics::writeBetweenessCentrality(const std::string &path) const {
   if (!file)
     return false;
 
-  std::map<uint16_t, double> bcMap = closenessCentralities();
-  bcMap = normalizeBC(bcMap);
+  std::map<uint16_t, double> bcMap = betweenessCentralities();
+  // bcMap = normalizeBC(bcMap);
 
   file << std::fixed << std::setprecision(6);
   for (const auto &[vertex, value] : bcMap)

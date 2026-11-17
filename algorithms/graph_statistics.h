@@ -41,13 +41,18 @@ private:
   // BFS a partir de `source`: distância (em arestas) até cada vértice
   // alcançável. Vértices inalcançáveis não aparecem no mapa.
   std::map<uint16_t, std::size_t> bfsDistances(uint16_t source) const;
+  // Mesma coisa que o de cima só que retornando o caminho percorrido
+  std::map<uint16_t, std::vector<std::vector<uint16_t>>>
+  bfsPaths(uint16_t source) const;
 
   // Calcula os números de menor caminho entre todos os nós no grafo
-  std::map<std::pair<uint16_t, uint16_t>, double> calculateAllDistances() const;
+  std::map<std::pair<uint16_t, uint16_t>, std::vector<std::vector<uint16_t>>>
+  calculateAllShortestPaths() const;
 
   // Retorna o número de menores distâncias que passam por um nó
-  size_t getDistancesThroughV(
-      std::map<std::pair<uint16_t, uint16_t>, double> &distances,
+  double getDistancesThroughV(
+      const std::map<std::pair<uint16_t, uint16_t>,
+                     std::vector<std::vector<uint16_t>>> &distances,
       uint16_t v) const;
 
   // max e min para os maps
