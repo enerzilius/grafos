@@ -327,7 +327,7 @@ double gsa::closenessCentrality(std::map<uint16_t, std::vector<uint16_t>> &list,
 
   int N = list.size();
   //std::cout<<"("<<N<<"-1) / "<<distanceSum<<"\n";
-  return (N-1)/distanceSum;
+  return distanceSum > 0.0 ? (N - 1.0) / distanceSum : 0.0;
 }
 
 // A excentricidade e a maior distancia de caminho minimo de um vertice

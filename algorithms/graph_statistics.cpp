@@ -41,7 +41,8 @@ GraphStatistics::bfsDistances(uint16_t source) const {
 // excentricidade, mais central é o vértice (ele alcança todos em poucos
 // passos). O menor valor de excentricidade do grafo é o raio, e o maior é o
 // diâmetro.
-// Ref: https://www.baeldung.com/cs/graphs-eccentricity-radius-diameter-center-periphery
+// Ref:
+// https://www.baeldung.com/cs/graphs-eccentricity-radius-diameter-center-periphery
 std::map<uint16_t, double> GraphStatistics::eccentricities() const {
   std::map<uint16_t, double> result;
 
@@ -90,6 +91,60 @@ std::map<uint16_t, double> GraphStatistics::closenessCentralities() const {
   }
   return result;
 }
+
+// Calcula e armazena os menores caminhos para todos os pares de nós
+std::map<std::pair<uint16_t, uint16_t>, double> GraphStatistics::calculateAllDistances() const {
+  std::map<std::pair<uint16_t, uint16_t>, double> result;
+
+  for (const auto &[v, list] : graph_.list) {
+    const auto distances = bfsDistances(v);
+    for (const auto &[u, distance] : distances) {
+      auto pair = std::make_pair(v, u);
+      result[pair] = distance;
+    }
+  }
+
+  return result;
+}
+
+// Descobre o número de menores distâncias que passam por um nó 
+size_t GraphStatistics::getAllDistancesThroughV(std::map<std::pair<uint16_t, uint16_t>, double>& distances, uint16_t v) {
+  size_t n = 0;
+
+  for (const auto &[pair, distance] : distances) {
+    if(pair.first == v || pair.second == v) n++;
+  }
+
+  return n;
+}
+
+// Betweeness Centrality
+// Essa medida indica o quão frequente o nó analisado está nos menores caminhos
+// de pares de vértices no grafo. O cálculo é feito fazendo o somatório da
+// divisão do número de menores caminhos entre dois nós que passa pelo vértice
+// analisado pelo menores caminhos entre esses nós, para cada nó:
+// betweeness_centrality(v) = sum((s_st(v))/s_st)
+// onde s != v != t, v é o nó em questão, s_st é o número de menores caminhos de
+// um nó s a um t e s_st(v) e o número de menores caminhos de s a t que passam
+// por v. A normalização é feita após ser isso ser calculado para todos os nós
+std::map<uint16_t, double> GraphStatistics::betweenessCentralities() const {
+  std::map<uint16_t, double> result;
+  const double n = static_cast<double>(graph_.list.size());
+
+  auto distances = std::move(calculateAllDistances());
+  size_t s_st = distances.size();
+
+  for (const auto &[vertex, adjacent] : graph_.list) {
+    size_t distancesV = getAllDistancesThroughV(distances, vertex);
+  }
+  return result;
+}
+
+// A normalização:
+// normal(bc[v])) =  (bc[v] - min(bc)) / (max(bc) - min[bc])
+// onde bc é um vetor com a betweeness centrality de todos os nós e e bc[v] e a
+// entrada sendo normalizada.
+
 
 bool GraphStatistics::writeEccentricity(const std::string &path) const {
   std::ofstream file(path);

@@ -24,6 +24,9 @@ public:
   // Closeness centrality normalizada de cada vértice.
   std::map<uint16_t, double> closenessCentralities() const;
 
+  // Betweeness centrality
+  std::map<uint16_t, double> GraphStatistics::betweenessCentralities() const;
+
   // Escrevem um vértice por linha, no formato "<id>: <valor>".
   // Retornam false se não conseguirem abrir o arquivo.
   bool writeEccentricity(const std::string &path) const;
@@ -35,4 +38,9 @@ private:
   // BFS a partir de `source`: distância (em arestas) até cada vértice
   // alcançável. Vértices inalcançáveis não aparecem no mapa.
   std::map<uint16_t, std::size_t> bfsDistances(uint16_t source) const;
+
+  // Calcula os números de menor caminho entre todos os nós no grafo 
+  std::map<std::pair<uint16_t, uint16_t>, double> calculateAllDistances() const;
+
+  size_t getAllDistancesThroughV(std::map<std::pair<uint16_t, uint16_t>, double>& distances, uint16_t v);
 };
