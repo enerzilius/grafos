@@ -8,6 +8,32 @@
 
 GraphStatistics::GraphStatistics(const AdjListGraph &graph) : graph_(graph) {}
 
+double GraphStatistics::mapMax(std::map<uint16_t, double> map) const {
+  if (map.empty())
+    return 0.0;
+  double max = map[0];
+
+  for (const auto &[key, value] : map) {
+    if (value > max)
+      max = value;
+  }
+
+  return max;
+}
+
+double GraphStatistics::mapMin(std::map<uint16_t, double> map) const {
+  if (map.empty())
+    return 0.0;
+  double min = map[0];
+
+  for (const auto &[key, value] : map) {
+    if (value < min)
+      min = value;
+  }
+
+  return min;
+}
+
 std::map<uint16_t, std::size_t>
 GraphStatistics::bfsDistances(uint16_t source) const {
   std::map<uint16_t, std::size_t> distances;
@@ -93,7 +119,8 @@ std::map<uint16_t, double> GraphStatistics::closenessCentralities() const {
 }
 
 // Calcula e armazena os menores caminhos para todos os pares de nós
-std::map<std::pair<uint16_t, uint16_t>, double> GraphStatistics::calculateAllDistances() const {
+std::map<std::pair<uint16_t, uint16_t>, double>
+GraphStatistics::calculateAllDistances() const {
   std::map<std::pair<uint16_t, uint16_t>, double> result;
 
   for (const auto &[v, list] : graph_.list) {
@@ -104,15 +131,18 @@ std::map<std::pair<uint16_t, uint16_t>, double> GraphStatistics::calculateAllDis
     }
   }
 
-  return result;
+  return std::move(result);
 }
 
-// Descobre o número de menores distâncias que passam por um nó 
-size_t GraphStatistics::getAllDistancesThroughV(std::map<std::pair<uint16_t, uint16_t>, double>& distances, uint16_t v) {
+// Descobre o número de menores distâncias que passam por um nó
+size_t GraphStatistics::getDistancesThroughV(
+    std::map<std::pair<uint16_t, uint16_t>, double> &distances,
+    uint16_t v) const {
   size_t n = 0;
 
   for (const auto &[pair, distance] : distances) {
-    if(pair.first == v || pair.second == v) n++;
+    if (pair.first == v || pair.second == v)
+      n++;
   }
 
   return n;
@@ -123,28 +153,41 @@ size_t GraphStatistics::getAllDistancesThroughV(std::map<std::pair<uint16_t, uin
 // de pares de vértices no grafo. O cálculo é feito fazendo o somatório da
 // divisão do número de menores caminhos entre dois nós que passa pelo vértice
 // analisado pelo menores caminhos entre esses nós, para cada nó:
-// betweeness_centrality(v) = sum((s_st(v))/s_st)
+// betweeness_centrality(v) = sum(s_stv/s_st)
 // onde s != v != t, v é o nó em questão, s_st é o número de menores caminhos de
 // um nó s a um t e s_st(v) e o número de menores caminhos de s a t que passam
 // por v. A normalização é feita após ser isso ser calculado para todos os nós
 std::map<uint16_t, double> GraphStatistics::betweenessCentralities() const {
   std::map<uint16_t, double> result;
-  const double n = static_cast<double>(graph_.list.size());
 
-  auto distances = std::move(calculateAllDistances());
-  size_t s_st = distances.size();
+  auto distances = calculateAllDistances();
+  size_t allDistances = distances.size();
 
+  uint32_t sum = 0;
   for (const auto &[vertex, adjacent] : graph_.list) {
-    size_t distancesV = getAllDistancesThroughV(distances, vertex);
+    size_t distancesV = getDistancesThroughV(distances, vertex);
+    result[vertex] = static_cast<float>(distancesV) / allDistances;
   }
-  return result;
+  return std::move(result);
 }
 
 // A normalização:
 // normal(bc[v])) =  (bc[v] - min(bc)) / (max(bc) - min[bc])
 // onde bc é um vetor com a betweeness centrality de todos os nós e e bc[v] e a
 // entrada sendo normalizada.
+std::map<uint16_t, double>
+GraphStatistics::normalizeBC(std::map<uint16_t, double> bcMap) const {
+  std::map<uint16_t, double> result;
+  size_t size = bcMap.size();
+  double min = mapMin(bcMap);
+  double max = mapMax(bcMap);
 
+  for (const auto &[node, distance] : bcMap) {
+    result[node] = (distance - min) / (max - min);
+  }
+
+  return std::move(result);
+}
 
 bool GraphStatistics::writeEccentricity(const std::string &path) const {
   std::ofstream file(path);
@@ -168,6 +211,20 @@ bool GraphStatistics::writeClosenessCentrality(const std::string &path) const {
 
   file << std::fixed << std::setprecision(6);
   for (const auto &[vertex, value] : closenessCentralities())
+    file << vertex << ": " << value << "\n";
+  return true;
+}
+
+bool GraphStatistics::writeBetweenessCentrality(const std::string &path) const {
+  std::ofstream file(path);
+  if (!file)
+    return false;
+
+  std::map<uint16_t, double> bcMap = closenessCentralities();
+  bcMap = normalizeBC(bcMap);
+
+  file << std::fixed << std::setprecision(6);
+  for (const auto &[vertex, value] : bcMap)
     file << vertex << ": " << value << "\n";
   return true;
 }

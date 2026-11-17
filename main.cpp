@@ -17,12 +17,11 @@ int main() {
 
   GraphStatistics stats(graph);
 
-  if (!stats.writeEccentricity("eccentricity.txt") ||
-      !stats.writeClosenessCentrality("closeness_centrality.txt")) {
+  if (!stats.writeBetweenessCentrality("saida.txt")) {
     std::cout << "Erro ao escrever os arquivos de saida.\n";
     return 1;
   }
 
-  std::cout << "Gerados: eccentricity.txt e closeness_centrality.txt\n";
+  std::cout << "Gerado: saida.txt\n";
   return 0;
 }
