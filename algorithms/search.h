@@ -7,6 +7,7 @@
 #include <vector>
 #include <stack>
 #include "../structures/adj_list.h"
+#include "../structures/weighted_graph.h"
 
 namespace gsa { // Graph Search Algorithms
 
@@ -29,4 +30,6 @@ void lazyPrimMST(const std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t
 double closenessCentrality(std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t node = 0);
 std::map<uint16_t, double> eccentricities(
     const std::map<uint16_t, std::vector<uint16_t>> &list);
+
+void dijkstraShortestPath(std::map<uint16_t, std::vector<Edge>> &list, uint16_t from = 0);
 } // namespace gsa

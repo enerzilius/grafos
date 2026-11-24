@@ -1,27 +1,14 @@
-#include "algorithms/graph_statistics.h"
-#include "structures/adj_list.h"
+#include "algorithms/search.h"
+#include "structures/weighted_graph.h"
 #include <iostream>
 
 int main() {
-  AdjListGraph graph(true);
+  WeightedGraph graph(false);
 
-  // O segundo argumento (true) é o que realmente marca o grafo como não
-  // dirigido: readFromGEXFFile sobrescreve a flag passada no construtor.
-  graph.readFromGEXFFile("data/LesMiserables.gexf", true);
+  graph.readFromTextFile("./data/teste_dijkstra.txt");
+  graph.print();
 
-  if (graph.list.empty()) {
-    std::cout << "Grafo vazio, nada a calcular.\n";
-    return 1;
-  }
-  std::cout << "Vertices lidos: " << graph.list.size() << "\n";
+  gsa::dijkstraShortestPath(graph.list);
 
-  GraphStatistics stats(graph);
-
-  if (!stats.writeBetweenessCentrality("saida.txt")) {
-    std::cout << "Erro ao escrever os arquivos de saida.\n";
-    return 1;
-  }
-
-  std::cout << "Gerado: saida.txt\n";
   return 0;
 }

@@ -1,13 +1,25 @@
 #include "search.h"
 
-#include <iostream>
-#include <stack>
 #include <algorithm>
+#include <iostream>
 #include <limits>
+#include <stack>
+#include <queue>
 
 struct TableContents {
   bool marked;
   uint16_t edgeTo;
+};
+
+struct WeightedTableContents {
+  double distTo;
+  uint16_t edgeTo;
+};
+
+struct Connection {
+  uint16_t from;
+  uint16_t to;
+  double weight;
 };
 
 static std::map<uint16_t, TableContents> marked;
@@ -20,9 +32,10 @@ static void
 connectedComponents(const std::map<uint16_t, std::vector<uint16_t>> &list,
                     std::map<uint16_t, uint16_t> &components,
                     uint16_t componentId, const uint16_t beginAt);
-static void stronglyConnectedComponents(const std::map<uint16_t, std::vector<uint16_t>> &list,
-                    std::map<uint16_t, uint16_t> &components,
-                    uint16_t componentId, const uint16_t beginAt);
+static void stronglyConnectedComponents(
+    const std::map<uint16_t, std::vector<uint16_t>> &list,
+    std::map<uint16_t, uint16_t> &components, uint16_t componentId,
+    const uint16_t beginAt);
 static uint16_t
 getUnmarked(const std::map<uint16_t, std::vector<uint16_t>> &list,
             const uint16_t beginAt);
@@ -30,6 +43,7 @@ static void schedule(const std::map<uint16_t, std::vector<uint16_t>> &list,
                      std::stack<uint16_t> &postorder, uint16_t beginAt);
 
 static void printTable();
+static void printWeightedTable(std::map<uint16_t, WeightedTableContents> table);
 static void
 printConnectedComponents(const std::map<uint16_t, uint16_t> &components);
 static void printStack(std::stack<uint16_t> &stack);
@@ -93,7 +107,9 @@ static void breadthSearch(const std::map<uint16_t, std::vector<uint16_t>> &list,
   breadthSearch(list, queue, queue.front());
 }
 
-std::vector<uint16_t> gsa::shortestPath(const std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t from, uint16_t to) {
+std::vector<uint16_t>
+gsa::shortestPath(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                  uint16_t from, uint16_t to) {
   std::map<uint16_t, uint16_t> parent;
   std::queue<uint16_t> queue;
 
@@ -181,7 +197,7 @@ getUnmarked(const std::map<uint16_t, std::vector<uint16_t>> &list,
 }
 
 static void printTable() {
-  std::cout<<"\nSEARCH'S RESULTING TABLE\n";
+  std::cout << "\nSEARCH'S RESULTING TABLE\n";
   std::cout << "v | marked | edgeTo \n";
   for (auto const &[key, value] : marked) {
     std::cout << key << " | " << (value.marked ? "T" : "F") << " | "
@@ -192,7 +208,7 @@ static void printTable() {
 
 static void printConnectedComponents(
     const std::map<uint16_t, uint16_t> &connectedComponents) {
-  std::cout<<"\nCONNECTED COMPONENTS\n";
+  std::cout << "\nCONNECTED COMPONENTS\n";
   std::cout << "v | componentId\n";
   for (auto const &[key, value] : connectedComponents) {
     std::cout << key << " | " << value << "\n";
@@ -200,14 +216,15 @@ static void printConnectedComponents(
   std::cout << "\n";
 }
 
-void gsa::precedenceScheduling(const std::map<uint16_t, std::vector<uint16_t>> &list,
-                          std::stack<uint16_t>& returnStack, uint16_t beginAt) {
+void gsa::precedenceScheduling(
+    const std::map<uint16_t, std::vector<uint16_t>> &list,
+    std::stack<uint16_t> &returnStack, uint16_t beginAt) {
   std::stack<uint16_t> postorder;
-  
+
   marked.clear();
   marked.insert({beginAt, {true, beginAt}});
   schedule(list, postorder, beginAt);
-  //printStack(postorder);
+  // printStack(postorder);
   returnStack = std::move(postorder);
 }
 
@@ -245,13 +262,13 @@ static void printStack(std::stack<uint16_t> &stack) {
     std::cout << stack.top() << " ";
     stack.pop();
   }
-  std::cout<<"\n";
+  std::cout << "\n";
 }
 
-void gsa::kosarajuShahirSCC(
-    const AdjListGraph& graph) {
-  if(graph.isUndirected) {
-    std::cout<<"[!] Graph is undirected, searching for connected components.\n";
+void gsa::kosarajuShahirSCC(const AdjListGraph &graph) {
+  if (graph.isUndirected) {
+    std::cout
+        << "[!] Graph is undirected, searching for connected components.\n";
     gsa::searchConnectedComponents(graph.list, 0);
     return;
   }
@@ -271,7 +288,7 @@ void gsa::kosarajuShahirSCC(
   uint16_t componentId = 0;
   bool checkedAll = false;
 
-  uint16_t beginAt =  postorder.top();
+  uint16_t beginAt = postorder.top();
   marked.insert({beginAt, {true, beginAt}});
 
   while (!postorder.empty()) {
@@ -284,9 +301,10 @@ void gsa::kosarajuShahirSCC(
   printConnectedComponents(components);
 }
 
-static void stronglyConnectedComponents(const std::map<uint16_t, std::vector<uint16_t>> &list,
-                    std::map<uint16_t, uint16_t> &components,
-                    uint16_t componentId, const uint16_t beginAt) {
+static void stronglyConnectedComponents(
+    const std::map<uint16_t, std::vector<uint16_t>> &list,
+    std::map<uint16_t, uint16_t> &components, uint16_t componentId,
+    const uint16_t beginAt) {
   std::vector<uint16_t> currentVector = list.at(beginAt);
   components.insert({beginAt, componentId});
   if (currentVector.empty())
@@ -301,43 +319,50 @@ static void stronglyConnectedComponents(const std::map<uint16_t, std::vector<uin
   }
 }
 
-void gsa::lazyPrimMST(const std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t begin_at) {
+void gsa::lazyPrimMST(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                      uint16_t begin_at) {
   // precisa de uma fila de prioridade
 
-  // começa no vértice 0 e adiciona todas as arestas dele em uma fila de prioridade ordenada pelo peso
+  // começa no vértice 0 e adiciona todas as arestas dele em uma fila de
+  // prioridade ordenada pelo peso
 
-  // adiciona a aresta com menor peso pra árvore (se ela não conecta aos vertices que já estão na árvore)
-  // remove a aresta adicionada na lista
-  // adiciona as arestas conectadas ao novo vértice da árvore à lista de prioridade (tem que manter ordenada) 
-  // repete pro próximo vértice
+  // adiciona a aresta com menor peso pra árvore (se ela não conecta aos
+  // vertices que já estão na árvore) remove a aresta adicionada na lista
+  // adiciona as arestas conectadas ao novo vértice da árvore à lista de
+  // prioridade (tem que manter ordenada) repete pro próximo vértice
 
   // repete até v-1
-} 
+}
 
-double gsa::closenessCentrality(std::map<uint16_t, std::vector<uint16_t>> &list, uint16_t node) {
+double gsa::closenessCentrality(std::map<uint16_t, std::vector<uint16_t>> &list,
+                                uint16_t node) {
   double distanceSum = 0.0;
 
   std::map<uint16_t, std::vector<uint16_t>>::iterator it;
   for (it = list.begin(); it != list.end(); it++) {
-    if(it->first == node) continue;
-    double distance = static_cast<double>(shortestPath(list, node, it->first).size() - 1);
-    //std::cout<<"Distance between "<<node<<" and "<<it->first<<" = "<<distance<<"\n";
+    if (it->first == node)
+      continue;
+    double distance =
+        static_cast<double>(shortestPath(list, node, it->first).size() - 1);
+    // std::cout<<"Distance between "<<node<<" and "<<it->first<<" =
+    // "<<distance<<"\n";
     distanceSum += distance;
   }
 
   int N = list.size();
-  //std::cout<<"("<<N<<"-1) / "<<distanceSum<<"\n";
+  // std::cout<<"("<<N<<"-1) / "<<distanceSum<<"\n";
   return distanceSum > 0.0 ? (N - 1.0) / distanceSum : 0.0;
 }
 
 // A excentricidade e a maior distancia de caminho minimo de um vertice
 // aos demais; se algum vertice nao for alcancavel, ela e infinita.
-// Ref: https://www.baeldung.com/cs/graphs-eccentricity-radius-diameter-center-periphery
-std::map<uint16_t, double> gsa::eccentricities(
-    const std::map<uint16_t, std::vector<uint16_t>> &list) {
+// Ref:
+// https://www.baeldung.com/cs/graphs-eccentricity-radius-diameter-center-periphery
+std::map<uint16_t, double>
+gsa::eccentricities(const std::map<uint16_t, std::vector<uint16_t>> &list) {
   std::map<uint16_t, double> result;
 
-  // 
+  //
   for (auto vertex = list.begin(); vertex != list.end(); ++vertex) {
     std::map<uint16_t, std::size_t> distances;
     std::queue<uint16_t> queue;
@@ -372,9 +397,59 @@ std::map<uint16_t, double> gsa::eccentricities(
       eccentricity = std::max(eccentricity, distance->second);
     }
 
-    result[vertex->first] =
-        unreachableVertex ? std::numeric_limits<double>::infinity()
-                          : static_cast<double>(eccentricity);
+    result[vertex->first] = unreachableVertex
+                                ? std::numeric_limits<double>::infinity()
+                                : static_cast<double>(eccentricity);
   }
   return result;
 }
+
+void gsa::dijkstraShortestPath(std::map<uint16_t, std::vector<Edge>> &list,
+                               uint16_t from) {
+  const double INF = std::numeric_limits<double>::infinity();
+  std::map<uint16_t, WeightedTableContents> marked;
+  for (const auto &[vertex, _] : list) {
+    marked[vertex] = {INF, vertex};
+  }
+  marked[from] = {0.0, from};
+
+  auto cmp = [](const Connection &a, const Connection &b) {
+    return a.weight > b.weight;
+  };
+  std::priority_queue<Connection, std::vector<Connection>, decltype(cmp)> queue(cmp);
+  queue.push({from, from, 0.0});
+
+  while(!queue.empty()) {
+    Connection curr = queue.top();
+    queue.pop();
+
+    if (curr.weight > marked[curr.to].distTo) {
+      continue;
+    }
+
+    for (const auto &edge : list[curr.to]) {
+      double newDist = curr.weight + edge.weight;
+
+      if (marked.find(edge.v) == marked.end()) {
+        marked[edge.v] = {INF, edge.v};
+      }
+
+      if (newDist < marked[edge.v].distTo) {
+        marked[edge.v] = {newDist, curr.to};
+        queue.push({curr.to, edge.v, newDist});
+      }
+    }
+  }
+
+  printWeightedTable(marked);
+}
+
+static void printWeightedTable(std::map<uint16_t, WeightedTableContents> table) {
+  std::cout << "\nSEARCH'S RESULTING TABLE\n";
+  std::cout << "v | distTo | edgeTo \n";
+  for (auto const &[key, value] : table) {
+    std::cout << key << " | " << (value.distTo) << " | "
+              << value.edgeTo << "->"<<key<<"\n";
+  }
+  std::cout << "\n";
+};
