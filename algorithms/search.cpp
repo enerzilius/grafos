@@ -3,8 +3,10 @@
 #include <algorithm>
 #include <iostream>
 #include <limits>
-#include <stack>
 #include <queue>
+#include <stack>
+
+#define INF std::numeric_limits<double>::infinity()
 
 struct TableContents {
   bool marked;
@@ -40,6 +42,8 @@ static uint16_t
 getUnmarked(const std::map<uint16_t, std::vector<uint16_t>> &list,
             const uint16_t beginAt);
 static void schedule(const std::map<uint16_t, std::vector<uint16_t>> &list,
+                     std::stack<uint16_t> &postorder, uint16_t beginAt);
+static void schedule(const std::map<uint16_t, std::vector<Edge>> &list,
                      std::stack<uint16_t> &postorder, uint16_t beginAt);
 
 static void printTable();
@@ -257,7 +261,7 @@ static void schedule(const std::map<uint16_t, std::vector<uint16_t>> &list,
 }
 
 static void printStack(std::stack<uint16_t> &stack) {
-  std::cout << "\nPRECENDE SCHEDULING'S REVERSE POSTORDER: \n";
+  std::cout << "\nPRECEDENCE SCHEDULING'S REVERSE POSTORDER: \n";
   while (!stack.empty()) {
     std::cout << stack.top() << " ";
     stack.pop();
@@ -406,7 +410,6 @@ gsa::eccentricities(const std::map<uint16_t, std::vector<uint16_t>> &list) {
 
 void gsa::dijkstraShortestPath(std::map<uint16_t, std::vector<Edge>> &list,
                                uint16_t from) {
-  const double INF = std::numeric_limits<double>::infinity();
   std::map<uint16_t, WeightedTableContents> marked;
   for (const auto &[vertex, _] : list) {
     marked[vertex] = {INF, vertex};
@@ -416,10 +419,11 @@ void gsa::dijkstraShortestPath(std::map<uint16_t, std::vector<Edge>> &list,
   auto cmp = [](const Connection &a, const Connection &b) {
     return a.weight > b.weight;
   };
-  std::priority_queue<Connection, std::vector<Connection>, decltype(cmp)> queue(cmp);
+  std::priority_queue<Connection, std::vector<Connection>, decltype(cmp)> queue(
+      cmp);
   queue.push({from, from, 0.0});
 
-  while(!queue.empty()) {
+  while (!queue.empty()) {
     Connection curr = queue.top();
     queue.pop();
 
@@ -444,12 +448,53 @@ void gsa::dijkstraShortestPath(std::map<uint16_t, std::vector<Edge>> &list,
   printWeightedTable(marked);
 }
 
-static void printWeightedTable(std::map<uint16_t, WeightedTableContents> table) {
+static void
+printWeightedTable(std::map<uint16_t, WeightedTableContents> table) {
   std::cout << "\nSEARCH'S RESULTING TABLE\n";
   std::cout << "v | distTo | edgeTo \n";
   for (auto const &[key, value] : table) {
-    std::cout << key << " | " << (value.distTo) << " | "
-              << value.edgeTo << "->"<<key<<"\n";
+    std::cout << key << " | " << (value.distTo) << " | " << value.edgeTo << "->"
+              << key << "\n";
   }
   std::cout << "\n";
 };
+
+void gsa::precedenceScheduling(
+    const std::map<uint16_t, std::vector<Edge>> &list, uint16_t beginAt) {
+  std::stack<uint16_t> postorder;
+
+  marked.clear();
+  marked.insert({beginAt, {true, beginAt}});
+  schedule(list, postorder, beginAt);
+  printStack(postorder);
+}
+
+void gsa::precedenceScheduling(
+    const std::map<uint16_t, std::vector<Edge>> &list,
+    std::stack<uint16_t> &returnStack, uint16_t beginAt) {
+  std::stack<uint16_t> postorder;
+
+  marked.clear();
+  marked.insert({beginAt, {true, beginAt}});
+  schedule(list, postorder, beginAt);
+  // printStack(postorder);
+  returnStack = std::move(postorder);
+}
+
+static void schedule(const std::map<uint16_t, std::vector<Edge>> &list,
+                     std::stack<uint16_t> &postorder, uint16_t beginAt) {
+  std::vector<Edge> currentVector = list.at(beginAt);
+  if (currentVector.empty()) {
+    postorder.push(beginAt);
+    return;
+  }
+
+  for (const Edge edge : currentVector) {
+    if (marked.find(edge.v) != marked.end())
+      continue;
+    marked.insert({edge.v, {true, beginAt}});
+
+    schedule(list, postorder, edge.v);
+  }
+  postorder.push(beginAt);
+}
